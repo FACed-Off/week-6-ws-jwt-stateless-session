@@ -26,12 +26,33 @@ module.exports = (req, res) => {
     case "POST /login":
       //const base64Decode = (str) => Buffer.from(str, "base64").toString();
       const cookie = jwt.sign(payload, secret);
-      var decode = jwt.decode(cookie, { complete: true });
-      console.log(decode.header);
-      console.log(decode.payload);
-      console.log(cookie);
+      // var decode = jwt.decode(cookie, { complete: true });
+      // console.log(decode.header);
+      // console.log(decode.payload);
+      // console.log(cookie);
+      res.writeHead(302, {
+        Location: "/",
+        "Set-Cookie": `data=${cookie}; HttpOnly;`,
+      });
+      return res.end();
     case "POST /logout":
-    case "GET /auth-check":
+      res.writeHead(302, {
+        Location: "/",
+        "Set-Cookie": "data=0; Max-Age=0",
+      });
+      return res.end();
+    case "GET /auth_check":
+      console.log("test");
+      const message = "Failed!";
+      const fail401 = () => {
+        res.writeHead(401, {
+          "Content-Type": "text/html",
+          "Content-Length": message.length,
+        });
+        res.end(message);
+      };
+
+      if (!req.headers.cookie) return fail401();
     default:
       res.writeHead(404, {
         "Content-Type": "text/html",
