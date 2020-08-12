@@ -1,7 +1,7 @@
 "use strict";
 
 const { readFile } = require("fs");
-const cookie = require("cookie");
+const cookieParse = require("cookie");
 const jwt = require("jsonwebtoken");
 
 const notFoundPage = '<p style="font-size: 10vh; text-align: center;">404!</p>';
@@ -35,24 +35,38 @@ module.exports = (req, res) => {
         "Set-Cookie": `data=${cookie}; HttpOnly;`,
       });
       return res.end();
+
     case "POST /logout":
       res.writeHead(302, {
         Location: "/",
         "Set-Cookie": "data=0; Max-Age=0",
       });
       return res.end();
+
     case "GET /auth_check":
-      console.log("test");
       const message = "Failed!";
       const fail401 = () => {
         res.writeHead(401, {
           "Content-Type": "text/html",
           "Content-Length": message.length,
         });
-        res.end(message);
+        return res.end(message);
       };
-
       if (!req.headers.cookie) return fail401();
+      const token = cookieParse.parse(req.headers.cookie);
+      const tokenData = token.data;
+      return jwt.verify(tokenData, secret, (err, tokenData) => {
+        if (err) {
+          return fail401();
+        } else {
+          const message = "Success";
+          res.writeHead(200, {
+            "Content-Type": "text/html",
+            "Content-Length": message.length,
+          });
+          return res.end(message);
+        }
+      });
     default:
       res.writeHead(404, {
         "Content-Type": "text/html",
