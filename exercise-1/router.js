@@ -45,6 +45,7 @@ module.exports = (req, res) => {
 
     case "GET /auth_check":
       const message = "Failed!";
+      //create a fail function to be used later
       const fail401 = () => {
         res.writeHead(401, {
           "Content-Type": "text/html",
@@ -53,7 +54,9 @@ module.exports = (req, res) => {
         return res.end(message);
       };
       if (!req.headers.cookie) return fail401();
+
       const token = cookieParse.parse(req.headers.cookie);
+      //console.log("token" + token.data);
       const tokenData = token.data;
       return jwt.verify(tokenData, secret, (err, tokenData) => {
         if (err) {
