@@ -8,14 +8,15 @@ module.exports = (secret) => {
   //HMAC: hashed-based message authenication code
   const functions = {
     sign: (value) => {
-      return crypto
-        .createHmac("sha256", secret)
-        .update(value)
-        .digest("hex")
-        .replace(/\=+$/, "");
+      return crypto.createHmac("sha256", secret).update(value).digest("hex");
+      // .replace(/\=+$/, "");
     },
     validate: (value, hash) => {
-      return false;
+      //calculates the HMAC of the value
+      const calculateHash = functions.sign(value);
+      console.log(calculateHash);
+      //compares it to the hash in provied in the parameters
+      return calculateHash === hash;
     },
   };
 
